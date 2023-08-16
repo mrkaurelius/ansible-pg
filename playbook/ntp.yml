@@ -1,0 +1,10 @@
+---
+- name: NTP examples
+  hosts: all
+
+  tasks:
+  - name: Execute the command in remote shell; stdout goes to the specified file on the remote
+    command: sudo timedatectl
+    register: out
+
+  - debug: var=out.stdout_lines

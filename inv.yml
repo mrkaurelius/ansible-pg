@@ -1,0 +1,9 @@
+all:
+  hosts:
+    dockerhost:
+      ansible_user: ubuntu
+
+docker:
+  hosts:
+    dockerhost:
+      ansible_user: ubuntu

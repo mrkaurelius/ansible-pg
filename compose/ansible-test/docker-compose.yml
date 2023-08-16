@@ -1,0 +1,11 @@
+version: '3'
+
+# TODO health check from ansible
+# TODO inspect compose file version and how ansible docker.docker_compose relation
+
+services:
+  alpine:
+    image: alpine:latest
+    container_name: "ansible-test-alpine"
+    restart: always
+    command: sh -c "echo merhabayayalandunya; sleep infinity"

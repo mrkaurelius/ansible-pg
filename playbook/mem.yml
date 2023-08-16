@@ -1,0 +1,8 @@
+---
+- name: available-memory-check
+  hosts: all
+  tasks:
+  - name:  
+    shell: free -h 
+    register: out
+  - debug: var=out.stdout_lines

@@ -1,0 +1,90 @@
+---
+- name: Docker ansible playbook example 
+  hosts: docker
+
+  tasks:
+  # Task with shell module
+  - name: Docker system info
+    shell: docker system info 
+    register: out # assign module output to register var
+  - debug: var=out.stdout_lines # out.stdout_lines print stdout
+    tags:
+      - shell
+  # Task with community.docker module
+  - name: check docker image
+    community.docker.docker_image_info:
+      # If no name is provided, a list of all images will be returned.
+      name: registry.gitlab.safirzincir/safirzincir/safirzincir-nizamiye-service:latest
+    # assing outoput of module to a variable. ansible modules could return a value for later usage
+    # register asigns this value to a variable
+    register: images # register ettigi module'un output'u burada verilen degisken ismi onemli degil
+    tags:
+      - image
+
+  # print results .image array fields legth
+  - debug: msg="images length {{ images.images | length }}"
+    tags:
+      - image
+
+  - name: Check image exists
+    ansible.builtin.assert:
+      that:
+        - images.images | length == 1
+    tags:
+      - image
+
+  # Docker swarm tasks
+  - name: Get swarm name
+    community.docker.docker_swarm_info:
+    register: swarm_info 
+    tags:
+      - swarm
+
+  - debug:  
+      msg: # multi line message
+        - "swarm_info {{ swarm_info.swarm_facts }}"
+        - "swarm id {{ swarm_info.swarm_facts.ID }}"
+    tags:
+      - swarm
+
+  - name: Get swarm services
+    community.docker.docker_swarm_service_info:
+    register: services
+    tags:
+      - service
+
+  - debug: var=services
+    tags:
+      - service
+
+  # docker-compose deploy path
+  - name: Copy compose project to server
+    ansible.builtin.copy:
+      src: ../compose/ansible-test
+      dest: /opt/compose
+      owner: ubuntu
+      group: ubuntu
+      mode: '0644'
+    tags:
+      - compose
+
+  # Docker compose tasks
+  - name: Deploy compose project
+    community.docker.docker_compose:
+      project_src: /opt/safirzincir/ansible-test # ! projet_src is in remote not ansible local
+      debug: true
+    register: output
+    tags:
+      - compose
+
+  - debug: var=output
+    tags:
+      - compose
+
+  # TODO Docker compose project health check
+
+  # TODO Docker comopse update image version
+
+  # Defining variables in playbook
+  vars:
+    myvar: merhabayalandunya
